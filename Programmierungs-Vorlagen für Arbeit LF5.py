@@ -22,7 +22,6 @@ arr = []
 liste = (1,2,3)
 
 arr.append(eingabe)  # Fuegt am Ende etwas hinzu  =>  "arr.pop()" # entfernt lezten Eintrag
-arr += eingabe # Alternativ
 
 # Zusatz Laenge von Arrays
 bspArry = [1, 2, 3, 4, 5] # Zahl 1 wird aber mit 0 angesprochen -->Arry zaehlt ab 0
@@ -91,35 +90,11 @@ def median(arr):
 
 print(median(testZahlenArray)) # Ausgabe = 2.5
 
-
-    # Alternativ mit Werten-Vorgabe
-    # checklow = 10000000 # vorgegebene groesse positive Zahl
-    # checkmax = -1000000 # vorgegebene groesse negative Zahl
-    # checkavg = 0
-    # arr = [1,2,3,4,5]
-
-    # for i in arr:
-    #     checkavg += i
-    #     # check for lowest value
-    #     if (i < checklow):
-    #         checklow = i
-    #     # check for highest value
-    #     if (i > checkmax):
-    #         checkmax = i
-    # checkavg = checkavg / len(arr)
-
-# print(checkavg)
-# print(checkmax)
-# print(checklow)
-
 # 5. Suchen aller Einträge die mit z.B. "A" beginnen"
 
 arr2 = ["apfel", 'ananas', "birne", 'depp']
 
 for i in arr2:
-    #first = i.lower()
-    #if (first[0] == "a"):
-         #print(i)
     if (i[0] == "a" or i[0] == "A"):
         print(i)
 
@@ -133,6 +108,14 @@ for i in arr2:
                 print("Das Wort: " + word + " hat ein a an der Stelle: " + str(i))
 
 # 6. zählen der Einträge die mit a, b, c, .... z beginnen
+
+arr3 = ["zappelin", "zimt", "zucker", "zebra", "zickzack"]
+numb = 0
+for i in arr3:
+    if(i[0] == "z" or i[0] == "Z"):
+        numb += 1
+print(numb)
+
 
 # 7. Ausgabe der eingegebenen Werte rückwärts
 
@@ -156,6 +139,13 @@ def reverso(zahlenArray):
 print(reverso(zahlenArray))
 
 # 8. suchen ob ein bestimmter Wert in der Liste ist
+newList = ("anna", "peter", "hans")
+
+for i in newList:
+    if(i == "anna"):
+        newWord = i
+print(newWord)
+    
 
 # 9. Strings reverten
 
