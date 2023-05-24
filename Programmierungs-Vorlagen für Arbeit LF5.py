@@ -156,3 +156,12 @@ def reverso(zahlenArray):
 print(reverso(zahlenArray))
 
 # 8. suchen ob ein bestimmter Wert in der Liste ist
+
+# 9. Strings reverten
+
+originalString = "Hello Wolrd!"
+reversedString = ''
+
+for char in originalString:
+    reversedString = char + reversedString
+print(reversedString)
