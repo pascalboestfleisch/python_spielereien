@@ -138,7 +138,7 @@ class Teststrecke:
             print(self._fahrzeug_position_werkzeugwagen)
             if self._fahrzeug_position_werkzeugwagen is not None:
                 return self._strecke[self._fahrzeug_position_werkzeugwagen]
-        return 0  # Wenn Position nicht gesetzt, setze den default Wert auf 0
+        return 0  # Wenn Position nicht gesetzt, default ausgeben
 
     def starteTransrapid(self):
         if self.getTransrapid() == 0:
