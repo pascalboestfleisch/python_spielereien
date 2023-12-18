@@ -10,7 +10,7 @@
 | -_strecke: List[int]                  |
 | -_transrapid: int                     |
 | -_werkzeugwagen: int                  |
-| -route_radius: int                    |
+| -_strecken_radius: int                |
 | -_transrapid_marker: int              |
 | -_werkzeugwagen_marker: int           |
 | -_x_werkzeugwagen: int                |
@@ -34,7 +34,7 @@
 | +ausfahrtTransrapid()                 |
 | +ausfahrtWerkzeugwagen()              |
 | +betreibenStrecke()                   |
-| +getKoordinaten(angle, radius): int, int]|
+| +getKoordinaten(winkel, radius): int, int]|
 | +update(frame)                        |
 | +visualize()                          |
 +---------------------------------------+
@@ -72,7 +72,7 @@ class Teststrecke:
         self._werkzeugwagen: int = 0  # Ist Werkzeugwagen angeschalten? 0 -> nein
 
         # Radius der Strecke bzw. des Kreises (Kreis ist die Groesse der Strecke)
-        self.route_radius: int = 5
+        self._strecken_radius: int = 5
         self._transrapid_marker: int = 0
         self._werkzeugwagen_marker: int = 0
         self._x_werkzeugwagen: int = 0  # X-Koordinate von Werkzeugwagen
@@ -82,7 +82,8 @@ class Teststrecke:
         self.num_frames: int = 100  # Nummer der Frames
         self.interval: int = 250  # Groesse des Intervalls in Millisekunden
 
-    def __del__(self):  # Destruktor
+    # Destruktor
+    def __del__(self):
         print("Teststrecke zerstört")
 
     def getTransrapid(self):
@@ -140,6 +141,7 @@ class Teststrecke:
                 return self._strecke[self._fahrzeug_position_werkzeugwagen]
         return 0  # Wenn Position nicht gesetzt, default ausgeben
 
+    # Transrapid starten
     def starteTransrapid(self):
         if self.getTransrapid() == 0:
             if self.validiereStart():
@@ -152,6 +154,7 @@ class Teststrecke:
         else:
             print("Der Transrapid wurde bereits gestartet")
 
+    # Werkzeugwagen starten
     def starteWerkzeugwagen(self):
         if self.getWerkzeugwagen() == 0:
             if self.validiereStart():
@@ -161,6 +164,7 @@ class Teststrecke:
         else:
             print("Der Werkzeugwagen wurde bereits gestartet")
 
+    # Weiche wird auf "Ausfahrt" gestellt, Transrapid fährt auf Strecke
     def ausfahrtTransrapid(self):
         if self.validiereStart():
             if self.getTransrapid() == 1:
@@ -168,6 +172,7 @@ class Teststrecke:
                     self._weiche = 1
                     self._fahrbahnStatus = 1
 
+    # Weiche wird auf "Ausfahrt" gestellt, Werkzeugwagen fährt auf Strecke
     def ausfahrtWerkzeugwagen(self):
         if self.validiereStart():
             if self.getWerkzeugwagen() == 1:
@@ -175,6 +180,7 @@ class Teststrecke:
                     self._weiche = 1
                     self._fahrbahnStatus = 1
 
+    # Fahrzeuge fahren Strecke, Berechnung Länge der Strecke -1, in Schleife wird Position stetig berechnet, Position um 1 erhöht
     def betreibenStrecke(self):
         for _ in range(len(self._strecke) - 1):
             if self.getTransrapid() == 1:
@@ -195,34 +201,36 @@ class Teststrecke:
                     self._strecke[self._fahrzeug_position_werkzeugwagen],
                 )
 
-    def getKoordinaten(self, angle, route_radius):
-        if angle is None:
+    # Koordinaten zur weiteren Berechnung für Marker der Visualisierung im Kreis
+    def getKoordinaten(self, winkel, _strecken_radius):
+        if winkel is None:
             return (
                 0,
                 0,
             )  # Wenn es keine Angaben zum Winkel bzw. der Position gibt, wird Marker an die Stelle 0,0 in der Visualisierung gesetzt
-        x = route_radius * np.cos(np.radians(angle))
-        y = route_radius * np.sin(np.radians(angle))
+        x = _strecken_radius * np.cos(np.radians(winkel))
+        y = _strecken_radius * np.sin(np.radians(winkel))
         return x, y
 
+    # Aktualisiert stetig die Visualisierung um Änderungen anzuzeigen
     def update(self, frame):
         self.betreibenStrecke()
         transrapid_pos = self.getPositionTransrapid()
         werkzeugwagen_pos = self.getPositionWerkzeugwagen()
 
         # Berechnung des Winkels anhand der Position von Transrapid/Werkzeugwagen
-        transrapid_angle = (transrapid_pos / len(self._strecke)) * 360
-        werkzeugwagen_angle = (werkzeugwagen_pos / len(self._strecke)) * 360
+        transrapid_winkel = (transrapid_pos / len(self._strecke)) * 360
+        werkzeugwagen_winkel = (werkzeugwagen_pos / len(self._strecke)) * 360
 
         # Die Koordinaten von Transrapid und Werkzeugwagen berechnen
         x_transrapid, y_transrapid = self.getKoordinaten(
-            transrapid_angle, self.route_radius
+            transrapid_winkel, self._strecken_radius
         )
         x_werkzeugwagen, y_werkzeugwagen = self.getKoordinaten(
-            werkzeugwagen_angle, self.route_radius
+            werkzeugwagen_winkel, self._strecken_radius
         )
 
-        # Updated die jeweiligen X- und Y-Koordinaten
+        # Updatet die jeweiligen X- und Y-Koordinaten
         self._transrapid_marker.set_xdata(x_transrapid)
         self._transrapid_marker.set_ydata(y_transrapid)
 
@@ -232,23 +240,24 @@ class Teststrecke:
         # Gibt die Koordinaten für Werkzeugwagen und Transrapid aus
         return self._transrapid_marker, self._werkzeugwagen_marker
 
+    # Erstellen der Visualisierung der Klasse
     def visualize(self):
         # Figur und deren Axis erstellen
         fig, ax = plt.subplots()
-        # Aspect ratio setzen, damit der Kreis keine Ellipse wird
+        # Seitenverhältnis bestimmen, damit der Kreis keine Ellipse wird
         ax.set_aspect("equal", "box")
 
         # Limitiert die Groesse der Figur (Quadrat)
-        route_radius = 5  # Radius des Kreises, beeinflusst die Groesse, Strecke ist 10, daher Radius 5
-        ax.set_xlim(-route_radius, route_radius)
-        ax.set_ylim(-route_radius, route_radius)
+        _strecken_radius = 5  # Radius des Kreises, beeinflusst die Groesse, Strecke ist 10, daher Radius 5
+        ax.set_xlim(-_strecken_radius, _strecken_radius)
+        ax.set_ylim(-_strecken_radius, _strecken_radius)
 
         # Eine Strecke um den Kreis erstellen, sodass die Positionen auf der Linie des Kreises erstellt werden
-        route_circle = patches.Circle(
-            (0, 0), route_radius, fill=False, color="black", linewidth=2
+        strecken_kreis = patches.Circle(
+            (0, 0), _strecken_radius, fill=False, color="black", linewidth=2
         )
         # Fügt Kreis auf die Achsen hinzu
-        ax.add_patch(route_circle)
+        ax.add_patch(strecken_kreis)
 
         # Marker für Transrapid in der Visualisierung
         (self._transrapid_marker,) = ax.plot([], [], "ro", label="Transrapid")
@@ -279,4 +288,4 @@ if __name__ == "__main__":
         # teststrecke.ausfahrtWerkzeugwagen()  # Wirft Exception
         teststrecke.betreibenStrecke()
     except Exception as e:
-        print(f"Fehler aufgetreten !: {e}")
+        print(f"Fehler aufgetreten!: {e}")
